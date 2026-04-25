@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آزمون شخصیت‌شناسی</title>
+<!-- DNS prefetch برای کاهش تأخیر DNS -->
+<link rel="dns-prefetch" href="https://api.gapgpt.app">
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+
+<style>
+@font-face {
+  font-family: 'Sahel';
+  src: url('SahelVF.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sahel', sans-serif;background:#0f1117;color:#e8e6e0;min-height:100vh;direction:rtl}
+.page{display:none;min-height:100vh;padding:2rem}
+.page.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hero-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;
+  background:radial-gradient(ellipse at 20% 50%,#1a1f3a 0%,#0f1117 60%),
+             radial-gradient(ellipse at 80% 20%,#1f1a3a 0%,transparent 50%)}
+.card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:20px;padding:2.5rem;width:100%;max-width:560px;backdrop-filter:blur(10px)}
+.spinner{width:48px;height:48px;border:3px solid rgba(255,255,255,0.1);border-top-color:#00ced1;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1.5rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-wrap p{color:#888;font-size:.95rem;margin-top:.6rem}
+.logo{text-align:center;margin-bottom:2rem}
+.logo .icon{width:56px;height:56px;background:linear-gradient(135deg,#00ced1,#008b8b);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:24px}
+.logo h1{font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:.4rem}
+.logo p{font-size:.9rem;color:#888;line-height:1.7}
+label{display:block;font-size:.85rem;color:#fff;margin-bottom:.4rem;margin-top:1rem}
+input,select{width:100%;padding:12px 16px;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.15);border-radius:12px;color:#e8e6e0;font-family:'Sahel', sans-serif;font-size:.95rem;outline:none;transition:border .2s}
+input:focus,select:focus{border-color:rgba(0,206,209,0.6);background:rgba(0,206,209,0.05)}
+select option{background:#1a1f2e;color:#e8e6e0}
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,#00ced1,#008b8b);border:none;border-radius:12px;color:#fff;font-family:'Sahel', sans-serif;font-size:1rem;font-weight:600;cursor:pointer;margin-top:1.5rem;transition:opacity .2s,transform .1s}
+.btn:hover{opacity:.9}
+.btn:active{transform:scale(0.99)}
+.btn-ghost{background:transparent;border:0.5px solid rgba(255,255,255,0.2);color:#aaa}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.4);color:#fff;opacity:1}
+.note{font-size:.82rem;color:#666;text-align:center;margin-top:1rem;line-height:1.8}
+.quiz-header{width:100%;max-width:700px;margin-bottom:1.5rem}
+.progress-bar{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-bottom:.6rem}
+.progress-fill{height:100%;background:linear-gradient(90deg,#00ced1,#008b8b);border-radius:2px;transition:width .4s ease;will-change:width}
+.progress-text{font-size:.8rem;color:#ffff00}
+.quiz-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:20px;padding:2rem;width:100%;max-width:700px}
+.section-badge{display:inline-block;padding:4px 14px;border-radius:100px;font-size:.78rem;font-weight:500;margin-bottom:1.2rem}
+.badge-e{background:rgba(0,206,209,0.2);color:#00ced1}
+.badge-c{background:rgba(155,93,229,0.2);color:#c49df5}
+.badge-m{background:rgba(0,188,212,0.2);color:#67e8f9}
+.badge-a{background:rgba(236,72,153,0.2);color:#f9a8d4}
+.q-num{font-size:.8rem;color:#555;margin-bottom:.6rem}
+.q-text{font-size:1.1rem;color:#e8e6e0;line-height:1.8;margin-bottom:2rem}
+.options{display:grid;grid-template-columns:1fr;gap:.7rem}
+.opt{padding:12px 18px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.12);border-radius:12px;cursor:pointer;font-family:'Sahel',sans-serif;font-size:.92rem;color:#ccc;text-align:right;transition:all .15s;display:flex;align-items:center;gap:.8rem}
+.opt:hover{background:rgba(0,206,209,0.1);border-color:rgba(0,206,209,0.4);color:#fff}
+.opt.selected{background:rgba(0,206,209,0.2);border-color:#00ced1;color:#fff}
+.opt-label{width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#666;flex-shrink:0}
+.opt.selected .opt-label{background:#00ced1;color:#fff}
+.nav-btns{display:flex;gap:.8rem;margin-top:1.5rem}
+.nav-btns .btn{margin-top:0}
+.btn-back{background:transparent;border:0.5px solid rgba(255,255,255,0.15);color:#888;flex:0 0 80px}
+.btn-next{flex:1}
+.loading-wrap{text-align:center;padding:3rem 2rem}
+.spinner{width:48px;height:48px;border:3px solid rgba(255,255,255,0.1);border-top-color:#00ced1;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1.5rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-wrap p{color:#888;font-size:.95rem;margin-top:.6rem}
+.result-wrap{width:100%;max-width:700px}
+.result-header{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:20px;padding:2rem;margin-bottom:1.2rem;text-align:center}
+.result-header h2{font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:.5rem}
+.result-header p{color:#888;font-size:.9rem}
+.scores-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem}
+.score-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.2rem}
+.score-card .label{font-size:.8rem;color:#888;margin-bottom:.4rem}
+.score-card .val{font-size:1.8rem;font-weight:700;margin-bottom:.4rem}
+.score-card .level{font-size:.78rem;font-weight:500;padding:2px 10px;border-radius:100px;display:inline-block}
+.bar-bg{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;margin-top:.6rem}
+.bar-fill{height:100%;border-radius:3px;transition:width 1s ease;will-change:width}
+.color-e{color:#00ced1}.color-c{color:#c49df5}.color-m{color:#67e8f9}.color-a{color:#f9a8d4}
+.fill-e{background:#00ced1}.fill-c{background:#9b5de5}.fill-m{background:#0bc5d4}.fill-a{background:#ec4899}
+.lv-high{background:rgba(0,206,209,0.2);color:#00ced1}.lv-mid{background:rgba(255,200,80,0.15);color:#fbbf24}.lv-low{background:rgba(239,68,68,0.15);color:#f87171}
+.analysis-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.5rem;margin-bottom:1.2rem}
+.analysis-card h3{font-size:1rem;font-weight:600;color:#ccc;margin-bottom:.8rem}
+.analysis-text{font-size:.9rem;color:#888;line-height:2;white-space:pre-wrap}
+.action-btns{display:flex;gap:.8rem;margin-top:1rem}
+.action-btns .btn{margin-top:0}
+.admin-wrap{width:100%;max-width:900px}
+.admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.admin-header h2{font-size:1.3rem;font-weight:600;color:#fff}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.stat-box{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:14px;padding:1rem;text-align:center}
+.stat-box .n{font-size:2rem;font-weight:700;color:#00ced1}
+.stat-box .l{font-size:.78rem;color:#666;margin-top:.2rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{text-align:right;padding:10px 14px;background:rgba(255,255,255,0.04);color:#666;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.08)}
+td{padding:10px 14px;border-bottom:0.5px solid rgba(255,255,255,0.05);color:#ccc;vertical-align:top}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.table-wrap{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden;overflow-x:auto}
+.admin-login{max-width:380px}
+.admin-link{position:fixed;bottom:1rem;left:1rem;font-size:.7rem;color:rgba(255,255,255,0.1);cursor:pointer;transition:color .2s}
+.admin-link:hover{color:rgba(255,255,255,0.3)}
+/* Detail Modal */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,17,23,0.95);display:none;align-items:center;justify-content:center;z-index:1000;padding:1.5rem}
+.modal-overlay.active{display:flex}
+.modal-content{background:#1a1f2e;border:0.5px solid rgba(255,255,255,0.1);border-radius:20px;width:100%;max-width:900px;max-height:90vh;overflow-y:auto;position:relative;padding:2.5rem}
+.modal-close{position:absolute;top:1.5rem;left:1.5rem;font-size:1.5rem;color:#666;cursor:pointer;transition:color .2s}
+.modal-close:hover{color:#fff}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-bottom:1.5rem}
+.detail-item{background:rgba(255,255,255,0.03);padding:1rem;border-radius:12px;border:0.5px solid rgba(255,255,255,0.05)}
+.detail-item label{margin-top:0;color:#666;font-size:.75rem}
+.detail-item div{color:#fff;font-weight:500;margin-top:.2rem}
+.detail-analysis{background:rgba(0,206,209,0.05);padding:1.5rem;border-radius:12px;border:0.5px solid rgba(0,206,209,0.1);line-height:1.8;color:#ccc;font-size:.9rem;white-space:pre-wrap}
+@media(max-width:600px){
+  .scores-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .page{padding:1rem}
+  .card,.quiz-card{padding:1.5rem;backdrop-filter:none;background:rgba(255,255,255,0.07)}
+}
+</style>
+</head>
+<body>
+<div class="hero-bg"></div>
+
+<!-- PAGE 1: Registration -->
+<div id="pg-register" class="page active">
+  <div class="card">
+    <div class="logo">
+      <img src="logo_hamin.png" style="width:80px;height:auto;margin-bottom:1rem;border-radius:12px;">
+      <h1>آزمون شخصیت‌شناسی</h1>
+      <p>این آزمون ۲۰ سوال دارد و حدود ۵ دقیقه طول می‌کشد.<br>نتایج به صورت تحلیل هوشمند ارائه می‌شود.</p>
+    </div>
+    <label>نام و نام خانوادگی (اختیاری)</label>
+    <input id="reg-name" type="text" placeholder="مثال: علی محمدی" />
+
+    <label>شماره تماس</label>
+    <input id="reg-phone" type="text" placeholder="مثال: ۰۹۱۲۱۲۳۴۵۶۷" />
+
+    <label>نوع شبکه اجتماعی</label>
+    <select id="reg-social-type">
+      <option value="eitaa">ایتا</option>
+      <option value="bale">بله</option>
+    </select>
+
+    <label>شناسه شبکه اجتماعی</label>
+    <input id="reg-social-id" type="text" placeholder="مثال: username@" />
+
+    <label>جنسیت</label>
+    <select id="reg-gender">
+      <option value="">انتخاب کنید</option>
+      <option value="male">مرد</option>
+      <option value="female">زن</option>
+      <option value="other">ترجیح می‌دهم نگویم</option>
+    </select>
+
+    <label>سن</label>
+    <input id="reg-age" type="number" placeholder="مثال: ۲۸" min="10" max="99" />
+
+    <label>میزان تحصیلات</label>
+    <select id="reg-edu">
+      <option value="">انتخاب کنید</option>
+      <option value="under_diploma">زیر دیپلم</option>
+      <option value="diploma">دیپلم</option>
+      <option value="associate">فوق دیپلم</option>
+      <option value="bachelor">لیسانس</option>
+      <option value="master">فوق‌لیسانس</option>
+      <option value="phd">دکتری</option>
+      <option value="hausa">علوم حوزوی</option>
+    </select>
+    <button class="btn" onclick="startTest()">شروع آزمون ←</button>
+  </div>
+</div>
+
+<!-- PAGE 2: Quiz -->
+<div id="pg-quiz" class="page">
+  <div class="quiz-header">
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:5%"></div></div>
+    <div class="progress-text" id="prog-text">سوال ۱ از ۲۰</div>
+  </div>
+  <div class="quiz-card" id="quiz-card">
+
+    <div class="q-num" id="q-num">سوال ۱</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="q-opts"></div>
+    <div class="nav-btns">
+      <button class="btn btn-back" id="btn-back" onclick="prevQ()">← قبلی</button>
+      <button class="btn btn-next" id="btn-next" onclick="nextQ()">بعدی ←</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- PAGE 3.5: Tracking Code + Results -->
+<div id="pg-tracking" class="page">
+  <div class="result-wrap">
+    <div class="result-header" style="margin-bottom:1.2rem">
+      <div style="width:52px;height:52px;background:linear-gradient(135deg,#00ced1,#008b8b);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto .8rem;font-size:22px">✅</div>
+      <h2>آزمون با موفقیت به پایان رسید</h2>
+      <p style="margin-bottom:.8rem">کد رهگیری اختصاصی شما:</p>
+      <div id="tracking-code-display" style="font-size:2.2rem;font-weight:800;color:#00ced1;letter-spacing:4px;background:rgba(0,206,209,0.1);padding:.8rem 1.5rem;border-radius:12px;display:inline-block;border:1px dashed #00ced1">#------</div>
+    </div>
+
+    <div class="scores-grid" id="tracking-scores" style="margin-bottom:1.2rem"></div>
+
+    <div class="analysis-card" style="text-align:center">
+      <div style="font-size:2rem;margin-bottom:.8rem">📩</div>
+      <p style="color:#fff;font-size:1.05rem;font-weight:600;margin-bottom:.5rem;line-height:1.8">
+        برای دریافت تحلیل نتیجه آزمونتان به پشتیبانی پیام بدهید.
+      </p>
+      <p style="color:#aaa;font-size:.88rem;margin-bottom:1.4rem;line-height:1.8">
+        کد رهگیری خود را همراه پیام ارسال کنید تا تحلیل کامل برایتان ارسال شود.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:.8rem">
+        <a href="https://eitaa.com/hamin_admin" target="_blank" class="btn" style="text-decoration:none;background:#f39233;margin-top:0">📱 پشتیبانی ایتا ←</a>
+        <a href="https://ble.ir/hamin_admin" target="_blank" class="btn" style="text-decoration:none;background:#28a745;margin-top:0">💬 پشتیبانی بله ←</a>
+      </div>
+      <button class="btn btn-ghost" style="margin-top:.8rem" onclick="retake()">بازگشت به صفحه اصلی</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 5: Admin Login -->
+<div id="pg-admin-login" class="page">
+  <div class="card admin-login">
+    <div class="logo">
+      <div class="icon">🔐</div>
+      <h1>پنل مدیریت</h1>
+    </div>
+    <label>رمز عبور</label>
+    <input id="admin-pass" type="password" placeholder="رمز عبور را وارد کنید" onkeydown="if(event.key==='Enter')adminLogin()" />
+    <button class="btn" onclick="adminLogin()">ورود</button>
+    <button class="btn btn-ghost" style="margin-top:.6rem" onclick="showPage('pg-register')">← بازگشت</button>
+  </div>
+</div>
+
+<!-- PAGE 6: Admin Dashboard -->
+<div id="pg-admin" class="page">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <h2>📊 داشبورد مدیریت</h2>
+      <div style="display:flex;gap:.6rem">
+        <button class="btn btn-ghost" style="width:auto;padding:8px 16px;margin-top:0;font-size:.85rem" onclick="renderAdmin()">🔄 بروزرسانی</button>
+        <button class="btn btn-ghost" style="width:auto;padding:8px 16px;margin-top:0;font-size:.85rem" onclick="exportCSV()">⬇ خروجی CSV</button>
+        <button class="btn btn-ghost" style="width:auto;padding:8px 16px;margin-top:0;font-size:.85rem" onclick="adminLogout()">خروج</button>
+      </div>
+    </div>
+    <div class="stats-row" id="admin-stats"></div>
+    <div class="table-wrap">
+      <table id="admin-table">
+        <thead>
+          <tr>
+            <th>نام</th>
+            <th>تماس</th>
+            <th>شبکه اجتماعی</th>
+            <th>جنسیت</th>
+            <th>سن</th>
+            <th>تحصیلات</th>
+            <th>کد رهگیری</th>
+            <th>برونگرایی</th>
+            <th>وظیفه‌شناسی</th>
+            <th>مدیریت هیجان</th>
+            <th>توافق‌پذیری</th>
+            <th>تاریخ</th>
+            <th>وضعیت تحلیل</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="admin-tbody" style="cursor:pointer"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Record Details -->
+<div id="modal-detail" class="modal-overlay" onclick="if(event.target===this)closeDetail()">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeDetail()">&times;</span>
+    <h2 style="font-size:1.3rem;margin-bottom:1.5rem;color:#fff;text-align:center">جزئیات شرکت‌کننده</h2>
+    <div id="detail-body"></div>
+  </div>
+</div>
+
+<div class="admin-link" onclick="showPage('pg-admin-login')">پنل مدیریت</div>
+
+<script>
+/* ========== CONFIG — اینجا را تغییر دهید ========== */
+const ADMIN_PASS = 'Admin@1234';   // رمز عبور داشبورد
+const API_KEY    = 'sk-AaKCBjIVUDdv6olcLfPXGGthSGBoB0xeS8L2WebyK4V6vTfo';
+const API_URL    = 'https://api.gapgpt.app/v1/chat/completions';
+const MODEL      = 'gapgpt-qwen-3.5';
+/* ================================================== */
+const toFa = n => n === null || n === undefined ? '' : n.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+const QUESTIONS = [
+  {text:'در جمع‌های خانوادگی یا مهمانی‌ها معمولاً فعالانه با دیگران صحبت می‌کنم.',cat:'e',rev:false},
+  {text:'ترجیح می‌دهم بیشتر اوقات در خانه یا محیط‌های خلوت بمانم تا در جمع‌های شلوغ.',cat:'e',rev:true},
+  {text:'وقتی با افراد جدید آشنا می‌شوم راحت گفتگو را شروع می‌کنم.',cat:'e',rev:false},
+  {text:'بودن طولانی در جمع‌های شلوغ مرا خسته می‌کند.',cat:'e',rev:true},
+  {text:'معمولاً در جمع دوستان یا خانواده فردی پرانرژی و فعال هستم.',cat:'e',rev:false},
+  {text:'سعی می‌کنم کارهای روزمره‌ام را طبق برنامه انجام دهم.',cat:'c',rev:false},
+  {text:'گاهی کارهای مهمم را تا لحظه آخر عقب می‌اندازم.',cat:'c',rev:true},
+  {text:'وقتی مسئولیتی به من سپرده می‌شود تلاش می‌کنم آن را دقیق انجام دهم.',cat:'c',rev:false},
+  {text:'برای انجام کارها به نظم و ترتیب اهمیت می‌دهم.',cat:'c',rev:false},
+  {text:'گاهی بدون فکر قبلی و برنامه‌ریزی تصمیم می‌گیرم.',cat:'c',rev:true},
+  {text:'وقتی با مشکل یا استرس روبه‌رو می‌شوم سعی می‌کنم آرامش خود را حفظ کنم.',cat:'m',rev:false},
+  {text:'در بحث یا اختلاف نظر خیلی زود عصبانی می‌شوم.',cat:'m',rev:true},
+  {text:'حتی در شرایط ناراحت‌کننده تلاش می‌کنم احساساتم را کنترل کنم.',cat:'m',rev:false},
+  {text:'وقتی اتفاق ناخوشایندی می‌افتد زود آشفته و مضطرب می‌شوم.',cat:'m',rev:true},
+  {text:'در موقعیت‌های دشوار سعی می‌کنم قبل از واکنش، کمی فکر کنم.',cat:'m',rev:false},
+  {text:'معمولاً سعی می‌کنم شرایط و احساسات دیگران را درک کنم.',cat:'a',rev:false},
+  {text:'در اختلاف نظرها اغلب وارد بحث و جدل طولانی می‌شوم.',cat:'a',rev:true},
+  {text:'کمک کردن به دوستان، همکاران یا اعضای خانواده برایم مهم است.',cat:'a',rev:false},
+  {text:'در کارهای گروهی تلاش می‌کنم با دیگران همکاری خوبی داشته باشم.',cat:'a',rev:false},
+  {text:'گاهی نسبت به مشکلات اطرافیان بی‌تفاوت می‌مانم.',cat:'a',rev:true}
+];
+
+const CAT_NAMES = {e:'برونگرایی / درونگرایی',c:'وظیفه‌شناسی',m:'مدیریت هیجان',a:'توافق‌پذیری'};
+const CAT_BADGE = {e:'badge-e',c:'badge-c',m:'badge-m',a:'badge-a'};
+const CAT_COLOR = {e:'color-e',c:'color-c',m:'color-m',a:'color-a'};
+const CAT_FILL  = {e:'fill-e',c:'fill-c',m:'fill-m',a:'fill-a'};
+const OPT_LABELS = ['الف','ب','ج','د','ه'];
+const OPT_TEXTS  = ['کاملاً مخالفم','مخالفم','نظری ندارم','موافقم','کاملاً موافقم'];
+
+let curQ=0, answers=new Array(20).fill(null), userData={}, scores={}, analysisText='', curTrackingCode='';
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function generateTrackingCode(){
+  const code = Math.floor(100000 + Math.random() * 900000);
+  return '#' + code;
+}
+
+function startTest(){
+  const name=document.getElementById('reg-name').value.trim();
+  const phone=document.getElementById('reg-phone').value.trim();
+  const socialType=document.getElementById('reg-social-type').value;
+  const socialId=document.getElementById('reg-social-id').value.trim();
+  const gender=document.getElementById('reg-gender').value;
+  const age=document.getElementById('reg-age').value.trim();
+  const edu=document.getElementById('reg-edu').value;
+
+  if(!phone||!socialId||!gender||!age||!edu){
+    alert('لطفاً تمامی فیلدهای اجباری (شماره تماس، شناسه شبکه اجتماعی، جنسیت، سن و تحصیلات) را پر کنید.');
+    return;
+  }
+  
+  userData={name,phone,socialType,socialId,gender,age,edu};
+  alert('در هر بخش عبارت را با دقت بخوانید و نزدیک‌ترین گزینه به شخصیت خود را انتخاب کنید');
+  curQ=0; answers=new Array(20).fill(null);
+  renderQ(); showPage('pg-quiz');
+}
+
+function renderQ(){
+  const q=QUESTIONS[curQ];
+  document.getElementById('prog-fill').style.width=((curQ+1)/20*100)+'%';
+  document.getElementById('prog-text').textContent=`سوال ${toFa(curQ+1)} از ${toFa(20)}`;
+
+  document.getElementById('q-num').textContent=`سوال ${toFa(curQ+1)}`;
+  document.getElementById('q-text').textContent=q.text;
+  const opts=document.getElementById('q-opts');
+  opts.innerHTML='';
+  OPT_TEXTS.forEach((t,i)=>{
+    const d=document.createElement('div');
+    d.className='opt'+(answers[curQ]===i+1?' selected':'');
+    d.innerHTML=`<span class="opt-label">${OPT_LABELS[i]}</span><span>${t}</span>`;
+    d.onclick=()=>{
+      answers[curQ]=i+1;
+      renderQ();
+      setTimeout(nextQ, 400);
+    };
+    opts.appendChild(d);
+  });
+  document.getElementById('btn-back').style.visibility=curQ===0?'hidden':'visible';
+  document.getElementById('btn-next').textContent=curQ===19?'ثبت و دریافت کد رهگیری ✓':'بعدی ←';
+}
+
+function nextQ(){
+  if(answers[curQ]===null){alert('لطفاً یک گزینه انتخاب کنید.');return;}
+  if(curQ<19){curQ++;renderQ();}
+  else submitTest();
+}
+function prevQ(){if(curQ>0){curQ--;renderQ();}}
+
+function calcScores(){
+  const raw={e:0,c:0,m:0,a:0};
+  QUESTIONS.forEach((q,i)=>{
+    let v=answers[i];
+    if(q.rev) v=6-v;
+    raw[q.cat]+=v;
+  });
+  return raw;
+}
+
+function getLevel(s){
+  if(s<=11)return{l:'پایین',cls:'lv-low'};
+  if(s<=18)return{l:'متوسط',cls:'lv-mid'};
+  return{l:'بالا',cls:'lv-high'};
+}
+
+function renderTrackingPage(){
+  document.getElementById('tracking-code-display').textContent = toFa(curTrackingCode);
+
+  const cats=[
+    {k:'e',label:'برونگرایی / درونگرایی'},
+    {k:'c',label:'وظیفه‌شناسی'},
+    {k:'m',label:'مدیریت هیجان'},
+    {k:'a',label:'توافق‌پذیری'}
+  ];
+  document.getElementById('tracking-scores').innerHTML=cats.map(({k,label})=>{
+    const s=scores[k], lv=getLevel(s), pct=(s-5)/20*100;
+    return `<div class="score-card">
+      <div class="label">${label}</div>
+      <div class="val ${CAT_COLOR[k]}">${toFa(s)}<span style="font-size:.9rem;color:#555"> / ${toFa(25)}</span></div>
+      <span class="level ${lv.cls}">${lv.l}</span>
+      <div class="bar-bg"><div class="bar-fill ${CAT_FILL[k]}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+async function submitTest(){
+  scores=calcScores();
+  curTrackingCode=generateTrackingCode();
+  saveRecord(false);
+  renderTrackingPage();
+  showPage('pg-tracking');
+  backgroundAnalysis();
+}
+
+async function backgroundAnalysis() {
+  const genderLabel = userData.gender==='male' ? 'مرد' : userData.gender==='female' ? 'زن' : 'نامشخص';
+  const eduMap = {under_diploma:'زیر دیپلم',diploma:'دیپلم',associate:'فوق‌دیپلم',bachelor:'لیسانس',master:'فوق‌لیسانس',phd:'دکتری',hausa:'علوم حوزوی'};
+  const levelFa = (s) => s<=11 ? 'پایین' : s<=18 ? 'متوسط' : 'بالا';
+
+  const prompt = `یک گزارش روانشناسی جامع و تحلیلی برای یک فرد "مجرد" بنویس که قصد ازدواج در آینده را دارد. این گزارش باید بر اساس ویژگی‌های شخصیتی زیر، تاثیر این ویژگی‌ها را بر زندگی مشترک و ازدواج آینده او تحلیل کند. 
+
+مشخصات فرد:
+نام: ${userData.name||'ذکر نشده'} | جنسیت: ${genderLabel} | سن: ${toFa(userData.age)} سال | تحصیلات: ${eduMap[userData.edu]||userData.edu}
+
+نتایج آزمون شخصیت (دامنه: ۵ تا ۲۵):
+- برونگرایی: ${toFa(scores.e)} از ۲۵ (${levelFa(scores.e)})
+- وظیفه‌شناسی: ${toFa(scores.c)} از ۲۵ (${levelFa(scores.c)})
+- مدیریت هیجان: ${toFa(scores.m)} از ۲۵ (${levelFa(scores.m)})
+- توافق‌پذیری: ${toFa(scores.a)} از ۲۵ (${levelFa(scores.a)})
+
+تحلیل باید شامل موارد زیر باشد و با لحنی گرم، مشاوره‌ای، صادقانه و بدون استفاده از لیست‌های خشک (به صورت روایی و پیوسته) نوشته شود:
+۱. تحلیل عمیق شخصیت: این فرد در روابط نزدیک چگونه عمل می‌کند؟ (با تمرکز بر دوران نامزدی و شروع زندگی)
+۲. نقاط قوت در ازدواج: چه ویژگی‌های مثبتی را به رابطه وارد می‌کند؟
+۳. چالش‌های پیش‌رو: در چه موقعیت‌هایی ممکن است با همسر آینده‌اش دچار تنش شود؟
+۴. توصیه‌های کلیدی برای انتخاب همسر: با چه تیپ شخصیتی سازگاری بیشتری دارد؟
+۵. جمع‌بندی و راهکار: برای بهبود مهارت‌های ارتباطی قبل از ازدواج چه باید بکند؟
+
+طول متن: بین ۳۰۰ تا ۴۰۰ کلمه. زبان: فارسی روان و محترمانه. از فونتیک یا کلمات انگلیسی استفاده نکن.`;
+
+  let analysisResult = null;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000); // 20 ثانیه timeout
+
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 1800,
+        temperature: 0.85,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.choices?.[0]?.message?.content) {
+        analysisResult = data.choices[0].message.content.trim();
+      }
+    }
+  } catch (e) {
+    console.error("AI analysis failed:", e);
+  }
+
+  if (analysisResult) {
+    analysisText = analysisResult;
+    updateRecordWithAnalysis(analysisResult);
+  }
+  // اگر API پاسخ نداد، record بدون analysis می‌ماند تا مدیر بعداً refresh کند
+}
+
+function saveRecord(withAnalysis = true){
+  try{
+    const records=JSON.parse(localStorage.getItem('psych_test_records')||'[]');
+    const newRecord = {
+      ...userData,
+      ...scores,
+      trackingCode: curTrackingCode,
+      date: new Date().toLocaleDateString('fa-IR')
+    };
+    if (withAnalysis) {
+      newRecord.analysis = analysisText;
+    }
+    records.push(newRecord);
+    localStorage.setItem('psych_test_records',JSON.stringify(records));
+  }catch(e){}
+}
+
+function updateRecordWithAnalysis(analysisResult) {
+  try {
+    const records = JSON.parse(localStorage.getItem('psych_test_records') || '[]');
+    const recordIndex = records.findIndex(r => r.trackingCode === curTrackingCode);
+    if (recordIndex !== -1) {
+      records[recordIndex].analysis = analysisResult;
+      localStorage.setItem('psych_test_records', JSON.stringify(records));
+    }
+  } catch (e) {
+    console.error("Failed to update record with analysis:", e);
+  }
+}
+
+function retake(){
+  answers=new Array(20).fill(null);
+  curQ=0; userData={};
+  document.getElementById('reg-name').value='';
+  document.getElementById('reg-phone').value='';
+  document.getElementById('reg-social-id').value='';
+  analysisText = '';
+  showPage('pg-register');
+}
+
+async function downloadPDF(){
+  // Load jsPDF on-demand only when user clicks (saves ~1.5MB on initial load)
+  if(!window.jspdf){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload=res; s.onerror=rej;
+      document.head.appendChild(s);
+    });
+  }
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+
+  const gMap={male:'مرد',female:'زن',other:'ترجیح می\u200cدهم نگویم'};
+  const eMap={under_diploma:'زیر دیپلم',diploma:'دیپلم',associate:'فوق دیپلم',bachelor:'لیسانس',master:'فوق\u200cلیسانس',phd:'دکتری',hausa:'علوم حوزوی'};
+  const sMap={eitaa:'ایتا',bale:'بله'};
+  const levelFa=(s)=>s<=11?'پایین':s<=18?'متوسط':'بالا';
+  const dateStr=new Date().toLocaleDateString('fa-IR');
+
+  const catRows=[
+    {k:'e',n:'برونگرایی / درونگرایی',color:'#00ced1'},
+    {k:'c',n:'وظیفه\u200cشناسی',color:'#9b5de5'},
+    {k:'m',n:'مدیریت هیجان',color:'#0bc5d4'},
+    {k:'a',n:'توافق\u200cپذیری',color:'#ec4899'}
+  ].map(({k,n,color})=>{
+    const s=scores[k];
+    const pct=(s-5)/20*100;
+    return `<div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <span style="font-weight:600;font-size:14px;">${n}</span>
+        <span style="color:${color};font-weight:700;font-size:14px;">${toFa(s)} از ${toFa(25)} &nbsp;|&nbsp; ${levelFa(s)}</span>
+      </div>
+      <div style="height:8px;background:#eee;border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const paraHtml=analysisText.split(/\n+/).filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;line-height:2;font-size:13px;text-align:justify;">${p}</p>`).join('');
+
+  const container=document.createElement('div');
+  container.style.cssText='position:fixed;top:-9999px;right:-9999px;width:794px;background:#fff;font-family:Sahel,sans-serif;direction:rtl;padding:40px;color:#333;box-sizing:border-box;';
+  container.innerHTML=`
+    <div style="text-align:center;margin-bottom:30px;border-bottom:2px solid #00ced1;padding-bottom:20px;">
+      <img src="logo_hamin.png" style="width:80px;height:auto;margin-bottom:10px;">
+      <h1 style="font-size:22px;color:#00ced1;margin:0 0 6px;">&#x06AF;&#x0632;&#x0627;&#x0631;&#x0634; &#x0622;&#x0632;&#x0645;&#x0648;&#x0646; &#x0634;&#x062E;&#x0635;&#x06CC;&#x062A;&#x200C;&#x0634;&#x0646;&#x0627;&#x0633;&#x06CC;</h1>
+      <p style="color:#888;font-size:13px;margin:0;">&#x062A;&#x062D;&#x0644;&#x06CC;&#x0644; &#x0631;&#x0648;&#x0627;&#x0646;&#x0634;&#x0646;&#x0627;&#x062E;&#x062A;&#x06CC; &#x0647;&#x0648;&#x0634;&#x0645;&#x0646;&#x062F;</p>
+    </div>
+    <div style="background:#f9f9ff;border-radius:10px;padding:16px;margin-bottom:24px;display:flex;gap:20px;flex-wrap:wrap;">
+      <div><span style="color:#888;font-size:12px;">نام:</span><br><strong style="font-size:14px;">${userData.name || 'ذکر نشده'}</strong></div>
+      <div><span style="color:#888;font-size:12px;">تماس:</span><br><strong style="font-size:14px;">${toFa(userData.phone)}</strong></div>
+      <div><span style="color:#888;font-size:12px;">شبکه اجتماعی:</span><br><strong style="font-size:14px;">${sMap[userData.socialType]}: ${userData.socialId}</strong></div>
+      <div><span style="color:#888;font-size:12px;">&#x062C;&#x0646;&#x0633;&#x06CC;&#x062A;:</span><br><strong style="font-size:14px;">${gMap[userData.gender]||userData.gender}</strong></div>
+      <div><span style="color:#888;font-size:12px;">&#x0633;&#x0646;:</span><br><strong style="font-size:14px;">${toFa(userData.age)} &#x0633;&#x0627;&#x0644;</strong></div>
+      <div><span style="color:#888;font-size:12px;">&#x062A;&#x062D;&#x0635;&#x06CC;&#x0644;&#x0627;&#x062A;:</span><br><strong style="font-size:14px;">${eMap[userData.edu]||userData.edu}</strong></div>
+      <div><span style="color:#888;font-size:12px;">کد رهگیری:</span><br><strong style="font-size:14px;">${toFa(curTrackingCode)}</strong></div>
+      <div><span style="color:#888;font-size:12px;">&#x062A;&#x0627;&#x0631;&#x06CC;&#x062E;:</span><br><strong style="font-size:14px;">${toFa(dateStr)}</strong></div>
+    </div>
+    <h2 style="font-size:16px;color:#444;margin:0 0 16px;border-right:4px solid #00ced1;padding-right:10px;">&#x0646;&#x062A;&#x0627;&#x06CC;&#x062C; &#x0622;&#x0632;&#x0645;&#x0648;&#x0646;</h2>
+    ${catRows}
+    <h2 style="font-size:16px;color:#444;margin:24px 0 16px;border-right:4px solid #9b5de5;padding-right:10px;">&#x062A;&#x062D;&#x0644;&#x06CC;&#x0644; &#x0631;&#x0648;&#x0627;&#x0646;&#x0634;&#x0646;&#x0627;&#x062E;&#x062A;&#x06CC;</h2>
+    <div style="background:#fafafa;border-radius:10px;padding:16px;">${paraHtml}</div>
+    <div style="text-align:center;margin-top:30px;padding-top:20px;border-top:1px solid #eee;color:#bbb;font-size:11px;">&#x062A;&#x0647;&#x06CC;&#x0647;&#x200C;&#x0634;&#x062F;&#x0647; &#x062A;&#x0648;&#x0633;&#x0637; &#x0633;&#x0627;&#x0645;&#x0627;&#x0646;&#x0647; &#x0622;&#x0632;&#x0645;&#x0648;&#x0646; &#x0634;&#x062E;&#x0635;&#x06CC;&#x062A;&#x200C;&#x0634;&#x0646;&#x0627;&#x0633;&#x06CC;</div>
+  `;
+  document.body.appendChild(container);
+
+  // Load html2canvas if not already loaded
+  if(!window.html2canvas){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload=res; s.onerror=rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  const canvas=await html2canvas(container,{scale:2,useCORS:true,logging:false,backgroundColor:'#ffffff'});
+  document.body.removeChild(container);
+
+  const imgW=210;
+  const imgH=canvas.height*imgW/canvas.width;
+  const pageH=297;
+  let offsetY=0;
+
+  while(offsetY<canvas.height){
+    if(offsetY>0) doc.addPage();
+    const sliceH=Math.min(pageH/imgW*canvas.width, canvas.height-offsetY);
+    const tmpCanvas=document.createElement('canvas');
+    tmpCanvas.width=canvas.width;
+    tmpCanvas.height=sliceH;
+    tmpCanvas.getContext('2d').drawImage(canvas,0,offsetY,canvas.width,sliceH,0,0,canvas.width,sliceH);
+    const slice=tmpCanvas.toDataURL('image/jpeg',0.95);
+    const sliceHmm=sliceH*imgW/canvas.width;
+    doc.addImage(slice,'JPEG',0,0,imgW,sliceHmm);
+    offsetY+=sliceH;
+  }
+
+  doc.save('\u0646\u062A\u0627\u06CC\u062C_\u0622\u0632\u0645\u0648\u0646_\u0634\u062E\u0635\u06CC\u062A.pdf');
+}
+
+/* ADMIN */
+function adminLogin(){
+  if(document.getElementById('admin-pass').value===ADMIN_PASS){
+    renderAdmin(); showPage('pg-admin');
+  }else{
+    alert('رمز عبور اشتباه است.');
+  }
+}
+
+function adminLogout(){
+  document.getElementById('admin-pass').value='';
+  showPage('pg-register');
+}
+
+function renderAdmin(){
+  const records=JSON.parse(localStorage.getItem('psych_test_records')||'[]');
+  const gMap={male:'مرد',female:'زن',other:'نامشخص'};
+  const eMap={under_diploma:'زیر دیپلم',diploma:'دیپلم',associate:'فوق‌دیپلم',bachelor:'لیسانس',master:'فوق‌لیسانس',phd:'دکتری',hausa:'علوم حوزوی'};
+  const sMap={eitaa:'ایتا',bale:'بله'};
+
+  document.getElementById('admin-stats').innerHTML=`
+    <div class="stat-box"><div class="n">${toFa(records.length)}</div><div class="l">کل شرکت‌کنندگان</div></div>
+    <div class="stat-box"><div class="n">${toFa(records.filter(r=>r.gender==='female').length)}</div><div class="l">زن</div></div>
+    <div class="stat-box"><div class="n">${toFa(records.filter(r=>r.gender==='male').length)}</div><div class="l">مرد</div></div>
+  `;
+
+  const tbody=document.getElementById('admin-tbody');
+  tbody.innerHTML='';
+  if(!records.length){
+    tbody.innerHTML=`<tr><td colspan="14" style="text-align:center;color:#555;padding:2rem">هنوز شرکت‌کننده‌ای وجود ندارد</td></tr>`;
+    return;
+  }
+  records.slice().reverse().forEach((r,idx)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${r.name||'-'}</td>
+      <td>${toFa(r.phone || r.contact || '-')}</td>
+      <td>${sMap[r.socialType] || '-'}: ${r.socialId || '-'}</td>
+      <td>${gMap[r.gender]||r.gender}</td>
+      <td>${toFa(r.age)}</td>
+      <td>${eMap[r.edu]||r.edu}</td>
+      <td style="font-weight:700;color:#00ced1">${toFa(r.trackingCode||'-')}</td>
+      <td>${toFa(r.e)}</td>
+      <td>${toFa(r.c)}</td>
+      <td>${toFa(r.m)}</td>
+      <td>${toFa(r.a)}</td>
+      <td>${r.date}</td>
+      <td>${r.analysis
+        ? '<span style="color:#00ced1;font-weight:600">✅ آماده</span>'
+        : '<span style="color:#fbbf24;font-weight:600">⏳ در حال پردازش</span>'
+      }</td>
+      <td>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;margin:0" onclick="showDetail(${records.length-1-idx})">جزئیات</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+
+
+function showDetail(idx){
+  const records=JSON.parse(localStorage.getItem('psych_test_records')||'[]');
+  const r=records[idx];
+  if(!r) return;
+  const gMap={male:'مرد',female:'زن',other:'نامشخص'};
+  const eMap={under_diploma:'زیر دیپلم',diploma:'دیپلم',associate:'فوق‌دیپلم',bachelor:'لیسانس',master:'فوق‌لیسانس',phd:'دکتری',hausa:'علوم حوزوی'};
+  const sMap={eitaa:'ایتا',bale:'بله'};
+
+  const body=document.getElementById('detail-body');
+  body.innerHTML=`
+    <div class="detail-grid">
+      <div class="detail-item"><label>نام و نام خانوادگی</label><div>${r.name||'ذکر نشده'}</div></div>
+      <div class="detail-item"><label>شماره تماس</label><div>${toFa(r.phone||r.contact||'-')}</div></div>
+      <div class="detail-item"><label>شبکه اجتماعی</label><div>${sMap[r.socialType]||'-'}: ${r.socialId||'-'}</div></div>
+      <div class="detail-item"><label>جنسیت</label><div>${gMap[r.gender]||r.gender}</div></div>
+      <div class="detail-item"><label>سن</label><div>${toFa(r.age)} سال</div></div>
+      <div class="detail-item"><label>تحصیلات</label><div>${eMap[r.edu]||r.edu}</div></div>
+      <div class="detail-item"><label>کد رهگیری</label><div style="color:#00ced1">${toFa(r.trackingCode||'-')}</div></div>
+      <div class="detail-item"><label>تاریخ شرکت</label><div>${toFa(r.date||'-')}</div></div>
+    </div>
+    <div class="detail-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="detail-item" style="text-align:center"><label>برونگرایی</label><div class="color-e">${toFa(r.e)}</div></div>
+      <div class="detail-item" style="text-align:center"><label>وظیفه‌شناسی</label><div class="color-c">${toFa(r.c)}</div></div>
+      <div class="detail-item" style="text-align:center"><label>مدیریت هیجان</label><div class="color-m">${toFa(r.m)}</div></div>
+      <div class="detail-item" style="text-align:center"><label>توافق‌پذیری</label><div class="color-a">${toFa(r.a)}</div></div>
+    </div>
+    <div style="margin-bottom:.8rem;font-size:.85rem;color:#888;font-weight:600">تحلیل هوش مصنوعی:</div>
+    <div class="detail-analysis">${r.analysis||'تحلیلی ثبت نشده است.'}</div>
+  `;
+  document.getElementById('modal-detail').classList.add('active');
+}
+
+function closeDetail(){
+  document.getElementById('modal-detail').classList.remove('active');
+}
+
+function exportCSV(){
+  const records=JSON.parse(localStorage.getItem('psych_test_records')||'[]');
+  if(!records.length){alert('داده‌ای برای خروجی وجود ندارد.');return;}
+  const header='name,phone,social_type,social_id,gender,age,edu,tracking_code,extraversion,conscientiousness,emotion_mgmt,agreeableness,date\n';
+  const rows=records.map(r=>`"${r.name||''}","${r.phone||r.contact||''}","${r.socialType||''}","${r.socialId||''}",${r.gender},"${r.age}","${r.edu}","${r.trackingCode||''}","${r.e}","${r.c}","${r.m}","${r.a}","${r.date}"`).join('\n');
+  const blob=new Blob(['\uFEFF'+header+rows],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='test_results_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+</script>
+</body>
+</html>
