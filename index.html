@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>آزمون شخصیت‌شناسی</title>
+<title>آزمون اضطراب</title>
 <!-- DNS prefetch برای کاهش تأخیر DNS -->
 <link rel="dns-prefetch" href="https://api.gapgpt.app">
 <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
@@ -18,12 +18,12 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Sahel', sans-serif;background:#0f1117;color:#e8e6e0;min-height:100vh;direction:rtl}
+body{font-family:'Sahel', sans-serif;background:#1a2332;color:#e8e6e0;min-height:100vh;direction:rtl}
 .page{display:none;min-height:100vh;padding:2rem}
 .page.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
 .hero-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;
-  background:radial-gradient(ellipse at 20% 50%,#1a1f3a 0%,#0f1117 60%),
-             radial-gradient(ellipse at 80% 20%,#1f1a3a 0%,transparent 50%)}
+  background:radial-gradient(ellipse at 20% 50%,#2d3748 0%,#1a2332 60%),
+             radial-gradient(ellipse at 80% 20%,#3d2d48 0%,transparent 50%)}
 .card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:20px;padding:2.5rem;width:100%;max-width:560px;backdrop-filter:blur(10px)}
 .spinner{width:48px;height:48px;border:3px solid rgba(255,255,255,0.1);border-top-color:#00ced1;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1.5rem}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -129,8 +129,8 @@ tr:hover td{background:rgba(255,255,255,0.02)}
   <div class="card">
     <div class="logo">
       <img src="logo_hamin.png" style="width:80px;height:auto;margin-bottom:1rem;border-radius:12px;">
-      <h1>آزمون شخصیت‌شناسی</h1>
-      <p>این آزمون ۲۰ سوال دارد و حدود ۵ دقیقه طول می‌کشد.<br>نتایج به صورت تحلیل هوشمند ارائه می‌شود.</p>
+      <h1>آزمون اضطراب</h1>
+      <p>این آزمون ۱۵ سوال دارد و حدود ۵ دقیقه طول می‌کشد.<br>نتایج به صورت تحلیل هوشمند ارائه می‌شود.</p>
     </div>
     <label>نام و نام خانوادگی (اختیاری)</label>
     <input id="reg-name" type="text" placeholder="مثال: علی محمدی" />
@@ -177,7 +177,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 <div id="pg-quiz" class="page">
   <div class="quiz-header">
     <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:5%"></div></div>
-    <div class="progress-text" id="prog-text">سوال ۱ از ۲۰</div>
+    <div class="progress-text" id="prog-text">سوال ۱ از ۱۵</div>
   </div>
   <div class="quiz-card" id="quiz-card">
 
@@ -259,10 +259,11 @@ tr:hover td{background:rgba(255,255,255,0.02)}
             <th>سن</th>
             <th>تحصیلات</th>
             <th>کد رهگیری</th>
-            <th>برونگرایی</th>
-            <th>وظیفه‌شناسی</th>
-            <th>مدیریت هیجان</th>
-            <th>توافق‌پذیری</th>
+            <th>اضطراب کلی</th>
+            <th>فوبیا اجتماعی</th>
+            <th>اضطراب فراگیر</th>
+            <th>وسواس</th>
+            <th>نمره کل</th>
             <th>تاریخ</th>
             <th>وضعیت تحلیل</th>
             <th>عملیات</th>
@@ -295,36 +296,31 @@ const MODEL      = 'gapgpt-qwen-3.5';
 const toFa = n => n === null || n === undefined ? '' : n.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
 
 const QUESTIONS = [
-  {text:'در جمع‌های خانوادگی یا مهمانی‌ها معمولاً فعالانه با دیگران صحبت می‌کنم.',cat:'e',rev:false},
-  {text:'ترجیح می‌دهم بیشتر اوقات در خانه یا محیط‌های خلوت بمانم تا در جمع‌های شلوغ.',cat:'e',rev:true},
-  {text:'وقتی با افراد جدید آشنا می‌شوم راحت گفتگو را شروع می‌کنم.',cat:'e',rev:false},
-  {text:'بودن طولانی در جمع‌های شلوغ مرا خسته می‌کند.',cat:'e',rev:true},
-  {text:'معمولاً در جمع دوستان یا خانواده فردی پرانرژی و فعال هستم.',cat:'e',rev:false},
-  {text:'سعی می‌کنم کارهای روزمره‌ام را طبق برنامه انجام دهم.',cat:'c',rev:false},
-  {text:'گاهی کارهای مهمم را تا لحظه آخر عقب می‌اندازم.',cat:'c',rev:true},
-  {text:'وقتی مسئولیتی به من سپرده می‌شود تلاش می‌کنم آن را دقیق انجام دهم.',cat:'c',rev:false},
-  {text:'برای انجام کارها به نظم و ترتیب اهمیت می‌دهم.',cat:'c',rev:false},
-  {text:'گاهی بدون فکر قبلی و برنامه‌ریزی تصمیم می‌گیرم.',cat:'c',rev:true},
-  {text:'وقتی با مشکل یا استرس روبه‌رو می‌شوم سعی می‌کنم آرامش خود را حفظ کنم.',cat:'m',rev:false},
-  {text:'در بحث یا اختلاف نظر خیلی زود عصبانی می‌شوم.',cat:'m',rev:true},
-  {text:'حتی در شرایط ناراحت‌کننده تلاش می‌کنم احساساتم را کنترل کنم.',cat:'m',rev:false},
-  {text:'وقتی اتفاق ناخوشایندی می‌افتد زود آشفته و مضطرب می‌شوم.',cat:'m',rev:true},
-  {text:'در موقعیت‌های دشوار سعی می‌کنم قبل از واکنش، کمی فکر کنم.',cat:'m',rev:false},
-  {text:'معمولاً سعی می‌کنم شرایط و احساسات دیگران را درک کنم.',cat:'a',rev:false},
-  {text:'در اختلاف نظرها اغلب وارد بحث و جدل طولانی می‌شوم.',cat:'a',rev:true},
-  {text:'کمک کردن به دوستان، همکاران یا اعضای خانواده برایم مهم است.',cat:'a',rev:false},
-  {text:'در کارهای گروهی تلاش می‌کنم با دیگران همکاری خوبی داشته باشم.',cat:'a',rev:false},
-  {text:'گاهی نسبت به مشکلات اطرافیان بی‌تفاوت می‌مانم.',cat:'a',rev:true}
+  {text:'در طول روز اغلب احساس دلشوره یا نگرانی دارم.',cat:'a',rev:false},
+  {text:'حتی وقتی در خانه هستم، ذهنم درگیر فکرهای نگران‌کننده است.',cat:'a',rev:false},
+  {text:'زود بی‌قرار یا کلافه می‌شوم.',cat:'a',rev:false},
+  {text:'هنگام انجام کارهای روزمره (مثل درس، کار یا کارهای خانه) تمرکز کافی ندارم.',cat:'a',rev:false},
+  {text:'به خاطر فکر و نگرانی، خواب راحتی ندارم.',cat:'a',rev:false},
+  {text:'در مهمانی‌ها یا جمع‌های فامیلی احساس معذب بودن یا اضطراب می‌کنم.',cat:'b',rev:false},
+  {text:'نگرانم که دیگران درباره من چه فکری می‌کنند یا قضاوتم کنند.',cat:'b',rev:false},
+  {text:'در موقعیت‌هایی مثل صحبت کردن در کلاس، جلسه یا جمع، دچار استرس می‌شوم.',cat:'b',rev:false},
+  {text:'از حضور در مکان‌های شلوغ (مثل بازار، مترو یا مراسم‌ها) تا حد امکان اجتناب می‌کنم.',cat:'b',rev:false},
+  {text:'درباره مسائل مختلف زندگی (مثل آینده، وضعیت مالی یا خانواده) زیاد نگران می‌شوم.',cat:'c',rev:false},
+  {text:'این نگرانی‌ها معمولاً طولانی می‌شوند و به سختی از ذهنم خارج می‌شوند.',cat:'c',rev:false},
+  {text:'اغلب به این فکر می‌کنم که ممکن است اتفاق بدی بیفتد.',cat:'c',rev:false},
+  {text:'افکار مزاحم و ناخواسته (حتی بی‌دلیل) مرتب به ذهنم می‌آیند.',cat:'d',rev:false},
+  {text:'برای اینکه آرام شوم، بعضی کارها را چند بار تکرار می‌کنم (مثل چک کردن یا شستن).',cat:'d',rev:false},
+  {text:'اگر کاری را دقیق یا کامل انجام ندهم، احساس اضطراب یا ناراحتی می‌کنم.',cat:'d',rev:false}
 ];
 
-const CAT_NAMES = {e:'برونگرایی / درونگرایی',c:'وظیفه‌شناسی',m:'مدیریت هیجان',a:'توافق‌پذیری'};
-const CAT_BADGE = {e:'badge-e',c:'badge-c',m:'badge-m',a:'badge-a'};
-const CAT_COLOR = {e:'color-e',c:'color-c',m:'color-m',a:'color-a'};
-const CAT_FILL  = {e:'fill-e',c:'fill-c',m:'fill-m',a:'fill-a'};
+const CAT_NAMES = {a:'اضطراب کلی',b:'فوبیا و اضطراب اجتماعی',c:'اضطراب فراگیر',d:'وسواس'};
+const CAT_BADGE = {a:'badge-e',b:'badge-c',c:'badge-m',d:'badge-a'};
+const CAT_COLOR = {a:'color-e',b:'color-c',c:'color-m',d:'color-a'};
+const CAT_FILL  = {a:'fill-e',b:'fill-c',c:'fill-m',d:'fill-a'};
 const OPT_LABELS = ['الف','ب','ج','د','ه'];
-const OPT_TEXTS  = ['کاملاً مخالفم','مخالفم','نظری ندارم','موافقم','کاملاً موافقم'];
+const OPT_TEXTS  = ['اصلاً','کم','متوسط','زیاد','بسیار زیاد'];
 
-let curQ=0, answers=new Array(20).fill(null), userData={}, scores={}, analysisText='', curTrackingCode='';
+let curQ=0, answers=new Array(15).fill(null), userData={}, scores={}, analysisText='', curTrackingCode='';
 
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -353,14 +349,14 @@ function startTest(){
   
   userData={name,phone,socialType,socialId,gender,age,edu};
   alert('در هر بخش عبارت را با دقت بخوانید و نزدیک‌ترین گزینه به شخصیت خود را انتخاب کنید');
-  curQ=0; answers=new Array(20).fill(null);
+  curQ=0; answers=new Array(15).fill(null);
   renderQ(); showPage('pg-quiz');
 }
 
 function renderQ(){
   const q=QUESTIONS[curQ];
-  document.getElementById('prog-fill').style.width=((curQ+1)/20*100)+'%';
-  document.getElementById('prog-text').textContent=`سوال ${toFa(curQ+1)} از ${toFa(20)}`;
+  document.getElementById('prog-fill').style.width=((curQ+1)/15*100)+'%';
+  document.getElementById('prog-text').textContent=`سوال ${toFa(curQ+1)} از ${toFa(15)}`;
 
   document.getElementById('q-num').textContent=`سوال ${toFa(curQ+1)}`;
   document.getElementById('q-text').textContent=q.text;
@@ -378,18 +374,18 @@ function renderQ(){
     opts.appendChild(d);
   });
   document.getElementById('btn-back').style.visibility=curQ===0?'hidden':'visible';
-  document.getElementById('btn-next').textContent=curQ===19?'ثبت و دریافت کد رهگیری ✓':'بعدی ←';
+  document.getElementById('btn-next').textContent=curQ===14?'ثبت و دریافت کد رهگیری ✓':'بعدی ←';
 }
 
 function nextQ(){
   if(answers[curQ]===null){alert('لطفاً یک گزینه انتخاب کنید.');return;}
-  if(curQ<19){curQ++;renderQ();}
+  if(curQ<14){curQ++;renderQ();}
   else submitTest();
 }
 function prevQ(){if(curQ>0){curQ--;renderQ();}}
 
 function calcScores(){
-  const raw={e:0,c:0,m:0,a:0};
+  const raw={a:0,b:0,c:0,d:0};
   QUESTIONS.forEach((q,i)=>{
     let v=answers[i];
     if(q.rev) v=6-v;
@@ -398,30 +394,53 @@ function calcScores(){
   return raw;
 }
 
-function getLevel(s){
-  if(s<=11)return{l:'پایین',cls:'lv-low'};
-  if(s<=18)return{l:'متوسط',cls:'lv-mid'};
-  return{l:'بالا',cls:'lv-high'};
+function getLevel(s, min, max){
+  const total = max - min + 1;
+  const ratio = (s - min) / total;
+  if(ratio < 0.33) return {l:'کم', cls:'lv-low'};
+  if(ratio < 0.66) return {l:'خفیف', cls:'lv-mid'};
+  if(ratio < 0.85) return {l:'متوسط', cls:'lv-mid'};
+  return {l:'شدید', cls:'lv-high'};
+}
+
+function getTotalLevel(s){
+  if(s <= 30) return {l:'کم', cls:'lv-low'};
+  if(s <= 45) return {l:'خفیف', cls:'lv-mid'};
+  if(s <= 60) return {l:'متوسط', cls:'lv-mid'};
+  return {l:'شدید', cls:'lv-high'};
 }
 
 function renderTrackingPage(){
   document.getElementById('tracking-code-display').textContent = toFa(curTrackingCode);
 
+  const totalScore = scores.a + scores.b + scores.c + scores.d;
+  const totalLevel = getTotalLevel(totalScore);
+
   const cats=[
-    {k:'e',label:'برونگرایی / درونگرایی'},
-    {k:'c',label:'وظیفه‌شناسی'},
-    {k:'m',label:'مدیریت هیجان'},
-    {k:'a',label:'توافق‌پذیری'}
+    {k:'a',label:'اضطراب کلی', min:5, max:25},
+    {k:'b',label:'فوبیا و اضطراب اجتماعی', min:4, max:20},
+    {k:'c',label:'اضطراب فراگیر', min:3, max:15},
+    {k:'d',label:'وسواس', min:3, max:15}
   ];
-  document.getElementById('tracking-scores').innerHTML=cats.map(({k,label})=>{
-    const s=scores[k], lv=getLevel(s), pct=(s-5)/20*100;
+  
+  let html = cats.map(({k,label,min,max})=>{
+    const s=scores[k], lv=getLevel(s, min, max), pct=(s-min)/(max-min)*100;
     return `<div class="score-card">
       <div class="label">${label}</div>
-      <div class="val ${CAT_COLOR[k]}">${toFa(s)}<span style="font-size:.9rem;color:#555"> / ${toFa(25)}</span></div>
+      <div class="val ${CAT_COLOR[k]}">${toFa(s)}<span style="font-size:.9rem;color:#555"> / ${toFa(max)}</span></div>
       <span class="level ${lv.cls}">${lv.l}</span>
       <div class="bar-bg"><div class="bar-fill ${CAT_FILL[k]}" style="width:${pct}%"></div></div>
     </div>`;
   }).join('');
+  
+  html += `<div class="score-card" style="grid-column:span 2;background:rgba(0,206,209,0.08);border-color:rgba(0,206,209,0.2)">
+    <div class="label">نمره کل اضطراب</div>
+    <div class="val ${CAT_COLOR.a}" style="font-size:2rem">${toFa(totalScore)}<span style="font-size:1rem;color:#555"> / ۷۵</span></div>
+    <span class="level ${totalLevel.cls}" style="font-size:1rem;padding:4px 16px">${totalLevel.l}</span>
+    <div class="bar-bg" style="height:8px"><div class="bar-fill ${CAT_FILL.a}" style="width:${(totalScore-15)/60*100}%"></div></div>
+  </div>`;
+  
+  document.getElementById('tracking-scores').innerHTML=html;
 }
 
 async function submitTest(){
@@ -436,25 +455,36 @@ async function submitTest(){
 async function backgroundAnalysis() {
   const genderLabel = userData.gender==='male' ? 'مرد' : userData.gender==='female' ? 'زن' : 'نامشخص';
   const eduMap = {under_diploma:'زیر دیپلم',diploma:'دیپلم',associate:'فوق‌دیپلم',bachelor:'لیسانس',master:'فوق‌لیسانس',phd:'دکتری',hausa:'علوم حوزوی'};
-  const levelFa = (s) => s<=11 ? 'پایین' : s<=18 ? 'متوسط' : 'بالا';
+  
+  const totalScore = scores.a + scores.b + scores.c + scores.d;
+  const totalLevel = getTotalLevel(totalScore).l;
+  
+  const levelFa = (s, min, max) => {
+    const ratio = (s - min) / (max - min + 1);
+    if(ratio < 0.33) return 'کم';
+    if(ratio < 0.66) return 'خفیف';
+    if(ratio < 0.85) return 'متوسط';
+    return 'شدید';
+  };
 
-  const prompt = `یک گزارش روانشناسی جامع و تحلیلی برای یک فرد "مجرد" بنویس که قصد ازدواج در آینده را دارد. این گزارش باید بر اساس ویژگی‌های شخصیتی زیر، تاثیر این ویژگی‌ها را بر زندگی مشترک و ازدواج آینده او تحلیل کند. 
+  const prompt = `یک گزارش روانشناسی جامع و تحلیلی برای ارزیابی سطح اضطراب بنویس. این گزارش باید بر اساس نمرات زیر، وضعیت اضطراب فرد را تحلیل کند و راهکارهای عملی ارائه دهد.
 
 مشخصات فرد:
 نام: ${userData.name||'ذکر نشده'} | جنسیت: ${genderLabel} | سن: ${toFa(userData.age)} سال | تحصیلات: ${eduMap[userData.edu]||userData.edu}
 
-نتایج آزمون شخصیت (دامنه: ۵ تا ۲۵):
-- برونگرایی: ${toFa(scores.e)} از ۲۵ (${levelFa(scores.e)})
-- وظیفه‌شناسی: ${toFa(scores.c)} از ۲۵ (${levelFa(scores.c)})
-- مدیریت هیجان: ${toFa(scores.m)} از ۲۵ (${levelFa(scores.m)})
-- توافق‌پذیری: ${toFa(scores.a)} از ۲۵ (${levelFa(scores.a)})
+نتایج آزمون اضطراب:
+- اضطراب کلی (۵-۲۵): ${toFa(scores.a)} از ۲۵ (${levelFa(scores.a, 5, 25)})
+- فوبیا و اضطراب اجتماعی (۴-۲۰): ${toFa(scores.b)} از ۲۰ (${levelFa(scores.b, 4, 20)})
+- اضطراب فراگیر (۳-۱۵): ${toFa(scores.c)} از ۱۵ (${levelFa(scores.c, 3, 15)})
+- وسواس (۳-۱۵): ${toFa(scores.d)} از ۱۵ (${levelFa(scores.d, 3, 15)})
+- نمره کل اضطراب (۱۵-۷۵): ${toFa(totalScore)} از ۷۵ (${totalLevel})
 
-تحلیل باید شامل موارد زیر باشد و با لحنی گرم، مشاوره‌ای، صادقانه و بدون استفاده از لیست‌های خشک (به صورت روایی و پیوسته) نوشته شود:
-۱. تحلیل عمیق شخصیت: این فرد در روابط نزدیک چگونه عمل می‌کند؟ (با تمرکز بر دوران نامزدی و شروع زندگی)
-۲. نقاط قوت در ازدواج: چه ویژگی‌های مثبتی را به رابطه وارد می‌کند؟
-۳. چالش‌های پیش‌رو: در چه موقعیت‌هایی ممکن است با همسر آینده‌اش دچار تنش شود؟
-۴. توصیه‌های کلیدی برای انتخاب همسر: با چه تیپ شخصیتی سازگاری بیشتری دارد؟
-۵. جمع‌بندی و راهکار: برای بهبود مهارت‌های ارتباطی قبل از ازدواج چه باید بکند؟
+تحلیل باید شامل موارد زیر باشد و با لحنی گرم، حمایتی، مشاوره‌ای و بدون استفاده از لیست‌های خشک (به صورت روایی و پیوسته) نوشته شود:
+۱. تحلیل عمیق وضعیت اضطراب: این فرد در زندگی روزمره چگونه با اضطراب دست‌وپنجه نرم می‌کند؟
+۲. نقاط قوت: چه منابع یا ویژگی‌هایی می‌تواند به او در مدیریت اضطراب کمک کند؟
+۳. چالش‌های پیش‌رو: در چه موقعیت‌هایی اضطراب بیشتر فعال می‌شود؟
+۴. توصیه‌های کلیدی: چه راهکارهای عملی برای کاهش اضطراب پیشنهاد می‌کنید؟
+۵. جمع‌بندی و راهکار: برای بهبود کیفیت زندگی و مدیریت بهتر اضطراب چه باید بکند؟
 
 طول متن: بین ۳۰۰ تا ۴۰۰ کلمه. زبان: فارسی روان و محترمانه. از فونتیک یا کلمات انگلیسی استفاده نکن.`;
 
@@ -526,7 +556,7 @@ function updateRecordWithAnalysis(analysisResult) {
 }
 
 function retake(){
-  answers=new Array(20).fill(null);
+  answers=new Array(15).fill(null);
   curQ=0; userData={};
   document.getElementById('reg-name').value='';
   document.getElementById('reg-phone').value='';
@@ -551,27 +581,49 @@ async function downloadPDF(){
   const gMap={male:'مرد',female:'زن',other:'ترجیح می\u200cدهم نگویم'};
   const eMap={under_diploma:'زیر دیپلم',diploma:'دیپلم',associate:'فوق دیپلم',bachelor:'لیسانس',master:'فوق\u200cلیسانس',phd:'دکتری',hausa:'علوم حوزوی'};
   const sMap={eitaa:'ایتا',bale:'بله'};
-  const levelFa=(s)=>s<=11?'پایین':s<=18?'متوسط':'بالا';
+  
+  const totalScore = scores.a + scores.b + scores.c + scores.d;
+  const totalLevel = getTotalLevel(totalScore).l;
+  
+  const levelFa = (s, min, max) => {
+    const ratio = (s - min) / (max - min + 1);
+    if(ratio < 0.33) return 'کم';
+    if(ratio < 0.66) return 'خفیف';
+    if(ratio < 0.85) return 'متوسط';
+    return 'شدید';
+  };
+  
   const dateStr=new Date().toLocaleDateString('fa-IR');
 
   const catRows=[
-    {k:'e',n:'برونگرایی / درونگرایی',color:'#00ced1'},
-    {k:'c',n:'وظیفه\u200cشناسی',color:'#9b5de5'},
-    {k:'m',n:'مدیریت هیجان',color:'#0bc5d4'},
-    {k:'a',n:'توافق\u200cپذیری',color:'#ec4899'}
-  ].map(({k,n,color})=>{
+    {k:'a',n:'اضطراب کلی',color:'#00ced1',min:5,max:25},
+    {k:'b',n:'فوبیا و اضطراب اجتماعی',color:'#9b5de5',min:4,max:20},
+    {k:'c',n:'اضطراب فراگیر',color:'#0bc5d4',min:3,max:15},
+    {k:'d',n:'وسواس',color:'#ec4899',min:3,max:15}
+  ].map(({k,n,color,min,max})=>{
     const s=scores[k];
-    const pct=(s-5)/20*100;
+    const pct=(s-min)/(max-min)*100;
     return `<div style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
         <span style="font-weight:600;font-size:14px;">${n}</span>
-        <span style="color:${color};font-weight:700;font-size:14px;">${toFa(s)} از ${toFa(25)} &nbsp;|&nbsp; ${levelFa(s)}</span>
+        <span style="color:${color};font-weight:700;font-size:14px;">${toFa(s)} از ${toFa(max)} &nbsp;|&nbsp; ${levelFa(s, min, max)}</span>
       </div>
       <div style="height:8px;background:#eee;border-radius:4px;overflow:hidden;">
         <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;"></div>
       </div>
     </div>`;
   }).join('');
+  
+  const totalPct = (totalScore - 15) / 60 * 100;
+  const totalRow = `<div style="margin-bottom:14px;background:rgba(0,206,209,0.08);padding:12px;border-radius:8px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+      <span style="font-weight:600;font-size:15px;">نمره کل اضطراب</span>
+      <span style="color:#00ced1;font-weight:700;font-size:15px;">${toFa(totalScore)} از ۷۵ &nbsp;|&nbsp; ${totalLevel}</span>
+    </div>
+    <div style="height:10px;background:#eee;border-radius:5px;overflow:hidden;">
+      <div style="height:100%;width:${totalPct}%;background:#00ced1;border-radius:5px;"></div>
+    </div>
+  </div>`;
 
   const paraHtml=analysisText.split(/\n+/).filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;line-height:2;font-size:13px;text-align:justify;">${p}</p>`).join('');
 
@@ -580,7 +632,7 @@ async function downloadPDF(){
   container.innerHTML=`
     <div style="text-align:center;margin-bottom:30px;border-bottom:2px solid #00ced1;padding-bottom:20px;">
       <img src="logo_hamin.png" style="width:80px;height:auto;margin-bottom:10px;">
-      <h1 style="font-size:22px;color:#00ced1;margin:0 0 6px;">&#x06AF;&#x0632;&#x0627;&#x0631;&#x0634; &#x0622;&#x0632;&#x0645;&#x0648;&#x0646; &#x0634;&#x062E;&#x0635;&#x06CC;&#x062A;&#x200C;&#x0634;&#x0646;&#x0627;&#x0633;&#x06CC;</h1>
+      <h1 style="font-size:22px;color:#00ced1;margin:0 0 6px;">&#x06AF;&#x0632;&#x0627;&#x0631;&#x0634; &#x0622;&#x0632;&#x0645;&#x0648;&#x0646; &#x0627;&#x0636;&#x0637;&#x0631;&#x0627;&#x0628;</h1>
       <p style="color:#888;font-size:13px;margin:0;">&#x062A;&#x062D;&#x0644;&#x06CC;&#x0644; &#x0631;&#x0648;&#x0627;&#x0646;&#x0634;&#x0646;&#x0627;&#x062E;&#x062A;&#x06CC; &#x0647;&#x0648;&#x0634;&#x0645;&#x0646;&#x062F;</p>
     </div>
     <div style="background:#f9f9ff;border-radius:10px;padding:16px;margin-bottom:24px;display:flex;gap:20px;flex-wrap:wrap;">
@@ -595,9 +647,10 @@ async function downloadPDF(){
     </div>
     <h2 style="font-size:16px;color:#444;margin:0 0 16px;border-right:4px solid #00ced1;padding-right:10px;">&#x0646;&#x062A;&#x0627;&#x06CC;&#x062C; &#x0622;&#x0632;&#x0645;&#x0648;&#x0646;</h2>
     ${catRows}
+    ${totalRow}
     <h2 style="font-size:16px;color:#444;margin:24px 0 16px;border-right:4px solid #9b5de5;padding-right:10px;">&#x062A;&#x062D;&#x0644;&#x06CC;&#x0644; &#x0631;&#x0648;&#x0627;&#x0646;&#x0634;&#x0646;&#x0627;&#x062E;&#x062A;&#x06CC;</h2>
     <div style="background:#fafafa;border-radius:10px;padding:16px;">${paraHtml}</div>
-    <div style="text-align:center;margin-top:30px;padding-top:20px;border-top:1px solid #eee;color:#bbb;font-size:11px;">&#x062A;&#x0647;&#x06CC;&#x0647;&#x200C;&#x0634;&#x062F;&#x0647; &#x062A;&#x0648;&#x0633;&#x0637; &#x0633;&#x0627;&#x0645;&#x0627;&#x0646;&#x0647; &#x0622;&#x0632;&#x0645;&#x0648;&#x0646; &#x0634;&#x062E;&#x0635;&#x06CC;&#x062A;&#x200C;&#x0634;&#x0646;&#x0627;&#x0633;&#x06CC;</div>
+    <div style="text-align:center;margin-top:30px;padding-top:20px;border-top:1px solid #eee;color:#bbb;font-size:11px;">&#x062A;&#x0647;&#x06CC;&#x0647;&#x200C;&#x0634;&#x062F;&#x0647; &#x062A;&#x0648;&#x0633;&#x0637; &#x0633;&#x0627;&#x0645;&#x0627;&#x0646;&#x0647; &#x0622;&#x0632;&#x0645;&#x0648;&#x0646; &#x0627;&#x0636;&#x0637;&#x0631;&#x0627;&#x0628;</div>
   `;
   document.body.appendChild(container);
 
@@ -664,10 +717,11 @@ function renderAdmin(){
   const tbody=document.getElementById('admin-tbody');
   tbody.innerHTML='';
   if(!records.length){
-    tbody.innerHTML=`<tr><td colspan="14" style="text-align:center;color:#555;padding:2rem">هنوز شرکت‌کننده‌ای وجود ندارد</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="15" style="text-align:center;color:#555;padding:2rem">هنوز شرکت‌کننده‌ای وجود ندارد</td></tr>`;
     return;
   }
   records.slice().reverse().forEach((r,idx)=>{
+    const total = (r.a||0) + (r.b||0) + (r.c||0) + (r.d||0);
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td>${r.name||'-'}</td>
@@ -677,10 +731,11 @@ function renderAdmin(){
       <td>${toFa(r.age)}</td>
       <td>${eMap[r.edu]||r.edu}</td>
       <td style="font-weight:700;color:#00ced1">${toFa(r.trackingCode||'-')}</td>
-      <td>${toFa(r.e)}</td>
-      <td>${toFa(r.c)}</td>
-      <td>${toFa(r.m)}</td>
       <td>${toFa(r.a)}</td>
+      <td>${toFa(r.b)}</td>
+      <td>${toFa(r.c)}</td>
+      <td>${toFa(r.d)}</td>
+      <td style="font-weight:700;color:#00ced1">${toFa(total)}</td>
       <td>${r.date}</td>
       <td>${r.analysis
         ? '<span style="color:#00ced1;font-weight:600">✅ آماده</span>'
@@ -705,6 +760,8 @@ function showDetail(idx){
   const gMap={male:'مرد',female:'زن',other:'نامشخص'};
   const eMap={under_diploma:'زیر دیپلم',diploma:'دیپلم',associate:'فوق‌دیپلم',bachelor:'لیسانس',master:'فوق‌لیسانس',phd:'دکتری',hausa:'علوم حوزوی'};
   const sMap={eitaa:'ایتا',bale:'بله'};
+  
+  const total = (r.a||0) + (r.b||0) + (r.c||0) + (r.d||0);
 
   const body=document.getElementById('detail-body');
   body.innerHTML=`
@@ -719,10 +776,13 @@ function showDetail(idx){
       <div class="detail-item"><label>تاریخ شرکت</label><div>${toFa(r.date||'-')}</div></div>
     </div>
     <div class="detail-grid" style="grid-template-columns:repeat(4,1fr)">
-      <div class="detail-item" style="text-align:center"><label>برونگرایی</label><div class="color-e">${toFa(r.e)}</div></div>
-      <div class="detail-item" style="text-align:center"><label>وظیفه‌شناسی</label><div class="color-c">${toFa(r.c)}</div></div>
-      <div class="detail-item" style="text-align:center"><label>مدیریت هیجان</label><div class="color-m">${toFa(r.m)}</div></div>
-      <div class="detail-item" style="text-align:center"><label>توافق‌پذیری</label><div class="color-a">${toFa(r.a)}</div></div>
+      <div class="detail-item" style="text-align:center"><label>اضطراب کلی</label><div class="color-e">${toFa(r.a)}</div></div>
+      <div class="detail-item" style="text-align:center"><label>فوبیا اجتماعی</label><div class="color-c">${toFa(r.b)}</div></div>
+      <div class="detail-item" style="text-align:center"><label>اضطراب فراگیر</label><div class="color-m">${toFa(r.c)}</div></div>
+      <div class="detail-item" style="text-align:center"><label>وسواس</label><div class="color-a">${toFa(r.d)}</div></div>
+    </div>
+    <div class="detail-item" style="text-align:center;background:rgba(0,206,209,0.1);border-color:rgba(0,206,209,0.2)">
+      <label>نمره کل اضطراب</label><div class="color-e" style="font-size:1.5rem">${toFa(total)} از ۷۵</div>
     </div>
     <div style="margin-bottom:.8rem;font-size:.85rem;color:#888;font-weight:600">تحلیل هوش مصنوعی:</div>
     <div class="detail-analysis">${r.analysis||'تحلیلی ثبت نشده است.'}</div>
@@ -736,13 +796,15 @@ function closeDetail(){
 
 function exportCSV(){
   const records=JSON.parse(localStorage.getItem('psych_test_records')||'[]');
-  if(!records.length){alert('داده‌ای برای خروجی وجود ندارد.');return;}
-  const header='name,phone,social_type,social_id,gender,age,edu,tracking_code,extraversion,conscientiousness,emotion_mgmt,agreeableness,date\n';
-  const rows=records.map(r=>`"${r.name||''}","${r.phone||r.contact||''}","${r.socialType||''}","${r.socialId||''}",${r.gender},"${r.age}","${r.edu}","${r.trackingCode||''}","${r.e}","${r.c}","${r.m}","${r.a}","${r.date}"`).join('\n');
+  const header='name,phone,social_type,social_id,gender,age,edu,tracking_code,anxiety_general,social_phobia,GAD,obsession,total_score,date\n';
+  const rows=records.map(r=>{
+    const total = (r.a||0) + (r.b||0) + (r.c||0) + (r.d||0);
+    return `"${r.name||''}","${r.phone||r.contact||''}","${r.socialType||''}","${r.socialId||''}",${r.gender},"${r.age}","${r.edu}","${r.trackingCode||''}","${r.a}","${r.b}","${r.c}","${r.d}","${total}","${r.date}"`;
+  }).join('\n');
   const blob=new Blob(['\uFEFF'+header+rows],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='test_results_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.download='anxiety_test_results_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
 }
 </script>
